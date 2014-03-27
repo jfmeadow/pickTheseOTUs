@@ -36,8 +36,8 @@
 
 export QIIME_DIR=/macqiime
 export reference_seqs=$QIIME_DIR/greengenes/gg_13_8_otus/rep_set/97_otus.fasta
-export reference_tree=$QIIME_DIR/greengenes/gg_13_8_otus/trees/97_otus.tree
 export reference_tax=$QIIME_DIR/greengenes/gg_13_8_otus/taxonomy/97_otu_taxonomy.txt
+# export reference_tree=$QIIME_DIR/greengenes/gg_13_8_otus/trees/97_otus.tree
 
 # If you're not sure, you should test those references by hand:
 #   this should give you the top of each respective file.
@@ -69,7 +69,7 @@ export reference_tax=$QIIME_DIR/greengenes/gg_13_8_otus/taxonomy/97_otu_taxonomy
 # The fast way
 #   This is from tutorial: 
 #     http://qiime.org/tutorials/chaining_otu_pickers.html
-#   Except I've used closed ref uclust to suppress denovo clusters.
+#   Except this script uses closed ref uclust to suppress denovo clusters.
 
 # directory to catch final otu table
 mkdir otus
@@ -83,23 +83,23 @@ pick_rep_set.py -i prefix_picked_otus/seqs_otus.txt -f seqs.fna -o prefix_picked
 echo 'finished picking prefix rep set...\n'
 echo 'this next step will take a few minutes...\n'
 
-# slow picking
+# slow picking at 97% against GreenGenes
 pick_otus.py --enable_rev_strand_match -m uclust_ref -r $reference_seqs -C -i prefix_picked_otus/rep_set.fasta -o prefix_picked_otus/uclust_picked_otus/
 echo 'finished uclust OTU picking...\n'
 
-# put them back together
+# put the otu maps back together
 merge_otu_maps.py -i prefix_picked_otus/seqs_otus.txt,prefix_picked_otus/uclust_picked_otus/rep_set_otus.txt -o otus/otus.txt
 echo 'finished merging maps...\n'
 
-# Pick final rep set from greengenes sequences
+# Pick final rep set from greengenes reference sequences
 pick_rep_set.py -i otus/otus.txt -f seqs.fna -o otus/final_rep_set.fasta -r $reference_seqs  
 echo 'finished picking final rep set...\n'
 
-# then go through default qiime steps
+# assign taxonomy using GreenGenes
 assign_taxonomy.py -i otus/final_rep_set.fasta -r $reference_seqs -t $reference_tax
 echo 'finished assigning taxonomy...\n'
 
-# make otu table. 
+# make an otu table. 
 make_otu_table.py -i otus/otus.txt -t uclust_assigned_taxonomy/final_rep_set_tax_assignments.txt -o otu_table.biom
 echo 'finished making OTU table...\n'
 
@@ -108,12 +108,17 @@ mkdir otu_table_metadata
 biom add-metadata -i otu_table.biom -o otu_table_metadata/otu_table_metadata.biom -m map.txt
 echo 'finished adding metadata to OTU table...\n'
 
-# summarize the final otu table. This uses the metadata version. 
-biom summarize-table -i otu_table_metadata/otu_table_metadata.biom -o otu_table_metadata/otu_table_stats.txt
-echo 'this many sequences were in the original "seq.fna" file:'
-grep -c '>' seqs.fna
-echo '\nthese stats can be found in "otu_table_metadata/otu_table_stats.txt":\n'
+# summarize the final otu table. 
+biom summarize-table -i otu_table.biom -o otu_table_stats.txt
+
+# Add total number of sequences to the bottom of this new file
+echo '\n-----------------------------\n' >> otu_table_stats.txt
+echo 'this many sequences were in the original "seq.fna" file:' >> otu_table_stats.txt
+grep -c '>' seqs.fna >> otu_table_stats.txt
+
+# Then spit out the whole file to assess how things went. 
+echo '\nthese stats can be found in "otu_table_stats.txt":\n'
 echo '-----------------------------\n'
-head -n 1000 otu_table_metadata/otu_table_stats.txt
+head -n 1000 otu_table_stats.txt
 echo '\n-----------------------------\n'
 
