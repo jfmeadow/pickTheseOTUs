@@ -1,6 +1,10 @@
 #!/bin/sh
 
 
+# first, set up macqiime so we can run these commands in a subshell
+source /macqiime/configs/bash_profile.txt
+
+
 #######################  
 #  INSTRUCTIONS:
 # 
@@ -22,6 +26,8 @@
 # Answer with 1 for yes or 2 for no. 
 #
 ########################
+
+
 
 
 ########################
