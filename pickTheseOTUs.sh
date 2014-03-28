@@ -72,15 +72,15 @@ echo "Do you want to replace the OTU-table-related files and folders?"
 select yn in "Yes" "No"; do
     case $yn in
         Yes ) 
- 		  	rm -r -f otu_table_metadata
-			rm -r -f otus
-			rm -r -f prefix_picked_otus
-			rm -r -f uclust_assigned_taxonomy
-			rm -f otu_table_stats.txt
-			rm -f otu_table.biom
-    		break;;
+ 		  rm -r -f otu_table_metadata
+ 		  rm -r -f otus
+ 		  rm -r -f prefix_picked_otus
+ 		  rm -r -f uclust_assigned_taxonomy
+ 		  rm -f otu_table_stats.txt
+ 		  rm -f otu_table.biom
+ 		  break;;
         No ) echo 'Try deleting everything except: seqs.fna, map.txt, and this script.\n'; 
-			exit;;
+		  exit;;
     esac
 done
 fi
