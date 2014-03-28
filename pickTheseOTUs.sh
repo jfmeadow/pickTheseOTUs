@@ -9,25 +9,19 @@
 #  * map.txt  = QIIME-format metadata for all samples
 #  * pickTheseOTUs.sh = this script
 #
+# You should empty the directory of old attempts. 
+#
 # Then call up macqiime BEFORE executing the script
 # macqiime
 # 
 # Then execute the script and hope it goes well:
 # ./pickTheseOTUs.sh
 #
-########################
-# ---- This should not be necessary since "--enable_rev_strand_match" added
-#   to pick_otus commands
+# If the directory has some files that will be replaced, 
+#   the script will ask you if that is ok. 
+# Answer with 1 for yes or 2 for no. 
 #
-# If sequences are reverse reads, turn them around before starting
-#   check by blasting a few of them and look at blast alignment. 
-#
-# mkdir original
-# mv seqs.fna original/revcomp_seqs.fna
-# adjust_seq_orientation.py -i original/revcomp_seqs.fna -o seqs.fna -r
 ########################
-
-
 
 
 ########################
@@ -50,11 +44,6 @@ export reference_tax=$QIIME_DIR/greengenes/gg_13_8_otus/taxonomy/97_otu_taxonomy
 # head $reference_tax
 
 
-
-
-
-
-
 #################
 # The slow way
 #   This results in a .biom file with taxonomy.
@@ -70,6 +59,25 @@ export reference_tax=$QIIME_DIR/greengenes/gg_13_8_otus/taxonomy/97_otu_taxonomy
 #   This is from tutorial: 
 #     http://qiime.org/tutorials/chaining_otu_pickers.html
 #   Except this script uses closed ref uclust to suppress denovo clusters.
+
+if [ -a otu_table.biom ];
+then
+echo "Do you want to replace the OTU-table-related files and folders?"
+select yn in "Yes" "No"; do
+    case $yn in
+        Yes ) 
+ 		  	rm -r -f otu_table_metadata
+			rm -r -f otus
+			rm -r -f prefix_picked_otus
+			rm -r -f uclust_assigned_taxonomy
+			rm -f otu_table_stats.txt
+			rm -f otu_table.biom
+    		break;;
+        No ) echo 'Try deleting everything except: seqs.fna, map.txt, and this script.\n'; 
+			exit;;
+    esac
+done
+fi
 
 # directory to catch final otu table
 mkdir otus
