@@ -68,7 +68,7 @@ export reference_tax=$QIIME_DIR/greengenes/gg_13_8_otus/taxonomy/97_otu_taxonomy
 
 if [ -a otu_table.biom ];
 then
-echo "Do you want to replace the OTU-table-related files and folders?"
+echo "Do you want to replace the OTU-table-related files and folders? If yes, enter '1'."
 select yn in "Yes" "No"; do
     case $yn in
         Yes ) 
